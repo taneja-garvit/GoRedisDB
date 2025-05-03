@@ -28,6 +28,14 @@ func main() {
 
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
-	// Placeholder: Will integrate RESP parsing and command handling
-	fmt.Fprintf(conn, "+PONG\r\n")
+	resp := NewResp(conn)
+
+	for {
+		cmd, err := resp.Read()
+		if err != nil {
+			fmt.Fprintf(conn, "-ERR %v\r\n", err)
+			return
+		}
+		handleCommand(conn, cmd)
+	}
 }
